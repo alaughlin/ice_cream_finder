@@ -2,6 +2,7 @@
 require 'json'
 require 'rest-client'
 require 'addressable/uri'
+require 'nokogiri'
 
 class IceCreamFinder
   def initialize
@@ -18,13 +19,13 @@ class IceCreamFinder
     store_results(locations)
     @dest_coords = choose_destination
     directions_url = create_directions_url(@cur_coords, @dest_coords)
-    get_directions(directions_url)
+    print_directions(directions_url)
   end
 
   def get_current_coords
     print "Please enter your address to find some tasty ice cream: "
     #current_address = create_address_url(gets.chomp)
-    address = "181 Willow Springs, New Milford, CT 06776"
+    address = gets.chomp
     current_address = create_address_url(address)
 
     address_lookup = RestClient.get(current_address)
@@ -63,7 +64,8 @@ class IceCreamFinder
       :path => "maps/api/directions/json",
       :query_values => {
         :origin => "#{cur[0]},#{cur[1]}",
-        :destination => "#{dest[0]},#{dest[1]}"
+        :destination => "#{dest[0]},#{dest[1]}",
+        :mode => "walking"
       }
     ).to_s
   end
@@ -97,7 +99,7 @@ class IceCreamFinder
       id += 1
     end
 
-    p choices
+    render_choices(choices)
 
     print "Please choose a location for directions (num): "
     choice = gets.chomp.to_i
@@ -105,9 +107,25 @@ class IceCreamFinder
     choices[choice][1]
   end
 
-  def get_directions(url)
-    p url
-    p RestClient.get(url)
+  def render_choices(choices)
+    puts
+
+    puts "Nearby locations:"
+    choices.each do |key, value|
+      puts "#{key}: #{value[0]}"
+    end
+
+    puts
+  end
+
+  def print_directions(url)
+    step_num = 1
+    directions = JSON.parse(RestClient.get(url))["routes"][0]
+    directions["legs"][0]["steps"].each do |step|
+      parsed_html = Nokogiri::HTML(step["html_instructions"])
+      puts "Step #{step_num}: #{parsed_html.text}"
+      step_num += 1
+    end
   end
 end
 
