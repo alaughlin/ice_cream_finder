@@ -74,7 +74,7 @@ class IceCreamFinder
     params = {
       :key => @api_key,
       :location => "#{cur_coords[0]},#{cur_coords[1]}",
-      :radius => 5000,
+      :radius => 1000,
       :types => "restaurant|food",
       :keyword => "ice cream"
     }
