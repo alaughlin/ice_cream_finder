@@ -121,13 +121,14 @@ class IceCreamFinder
     step_num = 1
     directions = JSON.parse(RestClient.get(url))["routes"][0]
     directions["legs"][0]["steps"].each do |step|
-      parsed_html = Nokogiri::HTML(step["html_instructions"])
-      if parsed_html.text.include?("Destination")
-        final_step = parsed_html.text.split("Destination")
-        puts "Step #{step_num}: #{final_step[0]}"
+      instruction = Nokogiri::HTML(step["html_instructions"])
+			distance = Nokogiri::HTML(step["distance"]["text"])
+      if instruction.text.include?("Destination")
+        final_step = instruction.text.split("Destination")
+        puts "Step #{step_num}: #{final_step[0]} (#{distance.text})"
         puts "Destination#{final_step[1]}\n\n"
       else
-        puts "Step #{step_num}: #{parsed_html.text}"
+        puts "Step #{step_num}: #{instruction.text} (#{distance.text})"
         step_num += 1
       end
     end
