@@ -24,9 +24,7 @@ class IceCreamFinder
 
   def get_current_coords
     print "Please enter your address to find some tasty ice cream: "
-    #current_address = create_address_url(gets.chomp)
-    address = gets.chomp
-    current_address = create_address_url(address)
+    current_address = create_address_url(gets.chomp)
 
     address_lookup = RestClient.get(current_address)
     result = JSON.parse(address_lookup)["results"][0]
