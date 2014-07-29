@@ -74,7 +74,7 @@ class IceCreamFinder
     params = {
       :key => @api_key,
       :location => "#{cur_coords[0]},#{cur_coords[1]}",
-      :radius => 1000,
+      :radius => 2000,
       :types => "restaurant|food",
       :keyword => "ice cream"
     }
@@ -119,12 +119,19 @@ class IceCreamFinder
   end
 
   def print_directions(url)
+    puts "\nDirections:\n\n"
     step_num = 1
     directions = JSON.parse(RestClient.get(url))["routes"][0]
     directions["legs"][0]["steps"].each do |step|
       parsed_html = Nokogiri::HTML(step["html_instructions"])
-      puts "Step #{step_num}: #{parsed_html.text}"
-      step_num += 1
+      if parsed_html.text.include?("Destination")
+        final_step = parsed_html.text.split("Destination")
+        puts "Step #{step_num}: #{final_step[0]}"
+        puts "Destination#{final_step[1]}\n\n"
+      else
+        puts "Step #{step_num}: #{parsed_html.text}"
+        step_num += 1
+      end
     end
   end
 end
